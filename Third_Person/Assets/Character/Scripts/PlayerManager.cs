@@ -1,39 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
     InputManagerment inputsystem;
-    PlayerCamera cam;
-    [SerializeField] Transform Camholder;
-    [SerializeField] float RotationSpeed = 3.5f;
+    [SerializeField] private GameObject cameraPrefab;
     Quaternion TargetRotate;
     Quaternion PlayerRotate;
-    public void HandleAllLocomotion()
-    {
-        HandleRote();
-    }
-    void HandleRote()
-    {
-        TargetRotate = Quaternion.Euler(0, Camholder.eulerAngles.y, 0);
-        PlayerRotate = Quaternion.Slerp(transform.rotation, TargetRotate, RotationSpeed * Time.deltaTime);
-        if (inputsystem.VerticalMovermentInput != 0 || inputsystem.HorizontalMovermentInput != 0)
-        {
-            transform.rotation = PlayerRotate;
-        }
-    }
-    private void FixedUpdate()
-    {
-        HandleAllLocomotion();
-    }
+    [SerializeField] List<GameObject> OtherPlayer;
+    CamSpawner ListPlayer;
     private void Awake()
     {
-        inputsystem = GetComponent<InputManagerment>();
-        cam =  FindObjectOfType<PlayerCamera>();
+        ListPlayer = FindObjectOfType<CamSpawner>();
+
     }
-    private void LateUpdate()
+    private void Start()
     {
-        cam.CameraMove();
+        ListPlayer.Players.Add(this.gameObject);
+        foreach(var player in ListPlayer.Players)
+        {
+            if(player != null)
+            {
+
+            }
+        }
     }
 }

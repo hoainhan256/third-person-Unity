@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class InputManagerment : MonoBehaviour
+public class InputManagerment : NetworkBehaviour
 {
     InputManager inputSystem;
     [Header("Player Moverment")]
@@ -15,13 +16,17 @@ public class InputManagerment : MonoBehaviour
     [SerializeField] Vector2 CameraInput;
     private void OnEnable()
     {
-        if (inputSystem == null)
+        if(IsOwner)
         {
-            inputSystem = new InputManager();
-            inputSystem.PlayerMove.Moverment.performed += i => MovermentInput = i.ReadValue<Vector2>();
-            inputSystem.PlayerMove.CameraRotate.performed += i => CameraInput = i.ReadValue<Vector2>();
+            if (inputSystem == null)
+            {
+                inputSystem = new InputManager();
+                inputSystem.PlayerMove.Moverment.performed += i => MovermentInput = i.ReadValue<Vector2>();
+                inputSystem.PlayerMove.CameraRotate.performed += i => CameraInput = i.ReadValue<Vector2>();
+            }
+            inputSystem.Enable();
         }
-        inputSystem.Enable();
+        
     }
     private void Update()
     {
@@ -29,21 +34,34 @@ public class InputManagerment : MonoBehaviour
     }
     private void OnDisable()
     {
-        inputSystem.Disable();
+        if (IsOwner)
+            inputSystem.Disable();
     }
     public void HandleAllInput()
     {
-        HandleMovermentInput();
-        HandleCameraInput();
+        if (IsOwner)
+        {
+            HandleMovermentInput();
+            HandleCameraInput();
+        }
+            
     }
     void HandleMovermentInput()
     {
-        HorizontalMovermentInput = MovermentInput.x;
+        if (IsOwner)
+        {
+           HorizontalMovermentInput = MovermentInput.x;
         VerticalMovermentInput = MovermentInput.y;
+        }
+            
     }
     void HandleCameraInput()
     {
-        HorizontalCameraInput = CameraInput.x;
-        VerticalCameraInput = CameraInput.y;
+        if (IsOwner)
+        {
+            HorizontalCameraInput = CameraInput.x;
+            VerticalCameraInput = CameraInput.y;
+        }
+        
     }
 }
